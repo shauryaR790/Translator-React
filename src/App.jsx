@@ -5,7 +5,7 @@ const App = () => {
   // 1. State definitions
   const [inputText, setInputText] = useState('');
   const [resultText, setResultText] = useState('');
-  const [targetLanguage, setTargetLanguage] = useState('gu'); 
+  const [targetLanguage, setTargetLanguage] = useState('gu');
   const [isLoading, setIsLoading] = useState(false);
 
   // 2. Translation Logic
@@ -31,32 +31,26 @@ const App = () => {
 
     try {
       const response = await axios.request(options);
-      console.log("API Response:", response.data); 
-      
-      // We are checking every possible place the text could be
-      const translated = response.data.trans || 
-                         response.data.translated_text || 
-                         response.data.text || 
-                         (response.data.data && response.data.data.translations && response.data.data.translations[0].translatedText);
-                         
-      if (translated) {
-        setResultText(translated);
-      } else {
-        // If it still fails, this will show you the raw data so you can see the key name
-        setResultText("Key not found. Response: " + JSON.stringify(response.data).substring(0, 50));
-      }
+      console.log("API Response:", response.data);
+
+      // The Albit API usually returns the translated text in response.data.text
+      const translated = response.data.trans;
+setResultText(translated || "Error: Unexpected response format");
+
+      setResultText(translated || "Error: Unexpected response format");
     } catch (error) {
-      console.error("Translation Error:", error);
-      setResultText("API Error. Check Console.");
+      console.error("Translation Error:", error.response ? error.response.data : error);
+      alert("API Error. Make sure you clicked 'Subscribe to Test' on RapidAPI!");
     } finally {
       setIsLoading(false);
-    }};// <--- Fixed the missing closing brace here!
+    }
+  }; // <--- Fixed the missing closing brace here!
 
   // 3. UI Layout
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6 font-sans">
       <div className="max-w-4xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-        
+
         {/* Left Side: Input */}
         <div className="p-8 flex-1 border-b md:border-b-0 md:border-r border-gray-100">
           <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">English</h2>
@@ -71,7 +65,7 @@ const App = () => {
         {/* Right Side: Output */}
         <div className="p-8 flex-1 bg-gray-50">
           <div className="flex justify-between items-center mb-4">
-            <select 
+            <select
               className="bg-transparent font-bold text-blue-600 outline-none cursor-pointer uppercase tracking-widest text-sm"
               value={targetLanguage}
               onChange={(e) => setTargetLanguage(e.target.value)}
